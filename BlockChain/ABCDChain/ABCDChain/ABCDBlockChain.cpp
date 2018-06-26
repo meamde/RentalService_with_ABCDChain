@@ -184,7 +184,7 @@ int main(int argc, const char * argv[]) {
     
     ABCDBlock Block1(1, GenesisBlock.GetBlockHash());
     blockList.push_back(Block1);
-    Block1.AddTransaction(Transaction(WalletRegistration, "DSJLFJKSFJLE29i31090sdfsd89a0gs890a"));
+    Block1.AddTransaction(Transaction(WalletRegistration, "dsadfwegah29i31090sdfsd89a0gs890a"));
     Block1.Determine();
     
     WriteBlockToFile();

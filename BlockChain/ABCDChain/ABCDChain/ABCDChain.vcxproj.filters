@@ -21,6 +21,15 @@
     <ClInclude Include="Transaction.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="json\json.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="json\json-forwards.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="sha256.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ABCDBlock.cpp">
@@ -33,6 +42,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Transaction.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="sha256.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

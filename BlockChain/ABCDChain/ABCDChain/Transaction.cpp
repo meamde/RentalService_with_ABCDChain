@@ -143,13 +143,13 @@ time_t Transaction::GetReturnTime()
 
 std::string Transaction::GetJson()
 {
-    std::string strJson;
+    /*std::string strJson;
     
     Json::StreamWriterBuilder builder;
     builder.settings_["identation"] = "";
-    strJson = Json::writeString(builder, GetJsonValue());
-    
-    return strJson;
+    strJson = Json::writeString(builder, GetJsonValue());*/
+
+    return GetJsonValue().toStyledString();
 }
 Json::Value Transaction::GetJsonValue()
 {
@@ -186,6 +186,6 @@ Json::Value Transaction::GetJsonValue()
             root["Amount"] = _amount;
             break;
     }
-    
+	
     return root;
 }
