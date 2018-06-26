@@ -23,17 +23,17 @@ private:
     std::string _address2;
     double _amount;
     std::string _deviceId;
-    time_t _rentalTime;
-    time_t _dueTime;
-    time_t _returnTime;
+    time_t _time1;
+    time_t _time2;
+	time_t _timeStamp;
     
 public:
 	
-    Transaction(TransactionType type, std::string address1);
-    Transaction(TransactionType type, std::string address1, std::string address2, double amount);
-    Transaction(TransactionType type, std::string address1, double amount);
+    Transaction(TransactionType type, std::string address1, time_t _timeStamp);
+    Transaction(TransactionType type, std::string address1, std::string address2, double amount, time_t _timeStamp);
+    Transaction(TransactionType type, std::string address1, double amount, time_t _timeStamp);
     Transaction(TransactionType type, std::string address1, std::string deviceId, double amount,
-                time_t Time1, time_t Time2);
+                time_t Time1, time_t Time2, time_t _timeStamp);
     Transaction(Json::Value json);
     Transaction(std::string jsonStr);
 	void SetFromJson(Json::Value json);
@@ -45,9 +45,9 @@ public:
     std::string GetAddress2();
     double GetAmount();
     std::string GetDeviceId();
-    time_t GetRentalTime();
-    time_t GetDueTime();
-    time_t GetReturnTime();
+    time_t GetTime1();
+    time_t GetTime2();
+	time_t GetTimeStamp();
     
     std::string GetJson();
     Json::Value GetJsonValue();

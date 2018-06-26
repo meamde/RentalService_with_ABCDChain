@@ -8,40 +8,44 @@
 
 #include "Transaction.hpp"
 
-Transaction::Transaction(TransactionType type, std::string address1)
+Transaction::Transaction(TransactionType type, std::string address1, time_t timeStamp)
 {
     _type = type;
     _address1 = address1;
+	_timeStamp = timeStamp;
 }
-Transaction::Transaction(TransactionType type, std::string address1, std::string address2, double amount)
+Transaction::Transaction(TransactionType type, std::string address1, std::string address2, double amount, time_t timeStamp)
 {
     _type = type;
     _address1 = address1;
     _address2 = address2;
     _amount = amount;
+	_timeStamp = timeStamp;
 }
-Transaction::Transaction(TransactionType type, std::string address1, double amount)
+Transaction::Transaction(TransactionType type, std::string address1, double amount, time_t timeStamp)
 {
     _type = type;
     _address1 = address1;
     _amount = amount;
+	_timeStamp = timeStamp;
 }
 Transaction::Transaction(TransactionType type, std::string address1, std::string deviceId, double amount,
-                         time_t Time1, time_t Time2)
+                         time_t Time1, time_t Time2, time_t timeStamp)
 {
     _type = type;
     _address1 = address1;
     _deviceId = deviceId;
     _amount = amount;
+	_timeStamp = timeStamp;
     
     switch (type) {
         case Rental:
-            _rentalTime = Time1;
-            _dueTime = Time2;
+            _time1 = Time1; //Rental time
+            _time2 = Time2; //Due time
             break;
         case Return:
-            _dueTime = Time1;
-            _returnTime = Time2;
+            _time1 = Time1; //Due time
+            _time2 = Time2; //Return time
             break;
             
         default:
@@ -93,19 +97,21 @@ void Transaction::SetFromJson(Json::Value jsonValue)
 		break;
 	case Rental:
 		_address1 = jsonValue["UserAddress"].asString();
-		_deviceId = jsonValue["RentalDevice"].asInt();
-		_rentalTime = jsonValue["RentalTime"].asInt64();
-		_dueTime = jsonValue["DueTime"].asInt64();
+		_deviceId = jsonValue["RentalDevice"].asString();
+		_time1 = jsonValue["RentalTime"].asInt64();
+		_time2 = jsonValue["DueTime"].asInt64();
 		_amount = jsonValue["Amount"].asDouble();
 		break;
 	case Return:
 		_address1 = jsonValue["UserAddress"].asString();
-		_deviceId = jsonValue["RentalDevice"].asInt();
-		_dueTime = jsonValue["DueTime"].asInt64();
-		_returnTime = jsonValue["ReturnTime"].asInt64();
+		_deviceId = jsonValue["RentalDevice"].asString();
+		_time1 = jsonValue["DueTime"].asInt64();
+		_time2 = jsonValue["ReturnTime"].asInt64();
 		_amount = jsonValue["Amount"].asDouble();
 		break;
 	}
+
+	_timeStamp = jsonValue["TimeStamp"].asInt64();
 }
 
 TransactionType Transaction::GetTransactionType()
@@ -128,17 +134,17 @@ std::string Transaction::GetDeviceId()
 {
     return _deviceId;
 }
-time_t Transaction::GetRentalTime()
+time_t Transaction::GetTime1()
 {
-    return _rentalTime;
+    return _time1;
 }
-time_t Transaction::GetDueTime()
+time_t Transaction::GetTime2()
 {
-    return _dueTime;
+    return _time2;
 }
-time_t Transaction::GetReturnTime()
+time_t Transaction::GetTimeStamp()
 {
-    return _returnTime;
+    return _timeStamp;
 }
 
 std::string Transaction::GetJson()
@@ -174,18 +180,20 @@ Json::Value Transaction::GetJsonValue()
         case Rental:
             root["UserAddress"] = _address1;
             root["RentalDevice"] = _deviceId;
-            root["RentalTime"] = (Json::Int64) _rentalTime;
-            root["DueTime"] = (Json::Int64)_dueTime;
+            root["RentalTime"] = (Json::Int64) _time1;
+            root["DueTime"] = (Json::Int64)_time2;
             root["Amount"] = _amount;
             break;
         case Return:
             root["UserAddress"] = _address1;
             root["RentalDevice"] = _deviceId;
-            root["DueTime"] = (Json::Int64) _dueTime;
-            root["ReturnTime"] = (Json::Int64)_returnTime;
+            root["DueTime"] = (Json::Int64)_time1;
+            root["ReturnTime"] = (Json::Int64)_time2;
             root["Amount"] = _amount;
             break;
     }
-	
+
+	root["TimeStamp"] = _timeStamp;
+
     return root;
 }

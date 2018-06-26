@@ -24,6 +24,7 @@ private:
     std::string _previousHash;
     std::string _blockHash;
     int _blockLength;
+	Json::UInt64 _nonce;
     std::list<Transaction> _transactionList;
     
 public:
@@ -37,6 +38,7 @@ public:
     std::list<Transaction> GetTransactionList();
 	int GetBlockLength();
 	std::string GetBlockHash();
+	void Mining();
     void Determine();
     std::string GetJson();
     Json::Value GetJsonValue();

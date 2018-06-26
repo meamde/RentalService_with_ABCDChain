@@ -13,12 +13,14 @@ ABCDBlock::ABCDBlock(int blockId, std::string preHash)
     _blockId = blockId;
     _previousHash = preHash;
     _blockLength = 0;
+	_nonce = 0;
 }
 ABCDBlock::ABCDBlock(std::string jsonStr)
 {
     Json::CharReaderBuilder builder;
     Json::CharReader* reader = builder.newCharReader();
     Json::Value jsonValue;
+
     std::string errstr;
     bool parseSuccess = reader->parse(jsonStr.c_str(), jsonStr.c_str() + jsonStr.size(),
                                       &jsonValue, &errstr);
@@ -26,7 +28,7 @@ ABCDBlock::ABCDBlock(std::string jsonStr)
     
     if(!parseSuccess)
     {
-        std::cout << &"ABCDBlock : Fail to parse Json On Initializing BlockId : " [ _blockId] << std::endl;
+        std::cout << &"ABCDBlock : Fail to parse Json On Initializing BlockId : " <<  _blockId << std::endl;
         return;
     }
 
@@ -45,6 +47,7 @@ void ABCDBlock::SetFromJson(Json::Value jsonValue)
     _previousHash = header["PreviousHash"].asString();
     _blockLength = header["BlockLength"].asInt();
     _blockHash = header["BlockHash"].asString();
+	_nonce = header["Nonce"].asUInt64();
     
     Json::Value transaction = jsonValue["Transaction"];
     
@@ -84,14 +87,32 @@ std::string ABCDBlock::GetBlockHash()
 
 	blockJsonStr += _previousHash;
 
+	blockJsonStr += _nonce + "";
+
     SHA256 sha256;
     
     std::string HasedStr = sha256(blockJsonStr.c_str(), blockJsonStr.size());
     
 	return HasedStr;
 }
+
+void ABCDBlock::Mining()
+{
+	while (true)
+	{
+		if (GetBlockHash().substr(0, 2) == "00")
+		{
+			std::cout << "ABCDChain : Success to mining block " << _blockId << std::endl;
+			break;
+		}
+		_nonce++;
+	}
+}
+
+
 void ABCDBlock::Determine()
 {
+	Mining();
 	_blockLength = GetBlockLength();
 	_blockHash = GetBlockHash();
 }
@@ -118,6 +139,7 @@ Json::Value ABCDBlock::GetJsonValue()
 	header["PreviousHash"] = _previousHash;
 	header["BlockLength"] = GetBlockLength();
 	header["BlockHash"] = GetBlockHash();
+	header["Nonce"] = _nonce;
 
 	root["Header"] = header;
 
