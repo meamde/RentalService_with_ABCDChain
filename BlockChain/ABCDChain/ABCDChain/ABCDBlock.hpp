@@ -32,6 +32,8 @@ public:
     ABCDBlock(Json::Value jsonValue);
     void SetFromJson(Json::Value jsonValue);
     void AddTransaction(Transaction transaction);
+	int GetBlockId();
+	std::string GetPreviousHash();
     std::list<Transaction> GetTransactionList();
 	int GetBlockLength();
 	std::string GetBlockHash();

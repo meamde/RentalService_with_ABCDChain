@@ -56,8 +56,15 @@ void ABCDBlock::SetFromJson(Json::Value jsonValue)
 }
 void ABCDBlock::AddTransaction(Transaction transaction)
 {
-	std::cout << "Transaction on Add : " << transaction.GetJsonValue() << std::endl;
 	_transactionList.push_back(transaction);
+}
+int ABCDBlock::GetBlockId()
+{
+	return _blockId;
+}
+std::string ABCDBlock::GetPreviousHash()
+{
+	return _previousHash;
 }
 std::list<Transaction> ABCDBlock::GetTransactionList()
 {
@@ -98,6 +105,7 @@ std::string ABCDBlock::GetJson()
 
 	return GetJsonValue().toStyledString();
 }
+
 Json::Value ABCDBlock::GetJsonValue()
 {
     Json::Value root;
@@ -113,11 +121,8 @@ Json::Value ABCDBlock::GetJsonValue()
 
 	root["Header"] = header;
 
-	std::cout << "Transaction Size : " << _transactionList.size() << std::endl;
-
 	for (tIt = _transactionList.begin(); tIt != _transactionList.end(); tIt++)
 	{
-		std::cout << "this is transaction\n" << tIt->GetJsonValue() << std::endl;
 		transaction[index++] = tIt->GetJsonValue();
 	}
 

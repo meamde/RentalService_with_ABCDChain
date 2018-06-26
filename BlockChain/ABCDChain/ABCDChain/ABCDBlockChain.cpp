@@ -7,23 +7,25 @@
 //
 
 #include <iostream>
+#include <fstream>
+#include <list>
+
 #include "ABCDBlock.hpp"
 #include "Transaction.hpp"
 #include "json/json.h"
-#include <list>
 
-std::list<ABCDBlock> blockList;
+std::list<ABCDBlock*> blockList;
 
 double GetAmountOfAddress(std::string address)
 {
-    std::list<ABCDBlock>::iterator blockIt;
+    std::list<ABCDBlock*>::iterator blockIt;
     std::list<Transaction>::iterator transIt;
     double amount = 0;
     
     for(blockIt = blockList.begin(); blockIt != blockList.end(); blockIt++)
     {
-        for(transIt = blockIt->GetTransactionList().begin();
-            transIt != blockIt->GetTransactionList().end();
+        for(transIt = (*blockIt) ->GetTransactionList().begin();
+            transIt != (*blockIt) ->GetTransactionList().end();
             transIt++)
         {
             if(transIt->GetTransactionType() == Issue &&
@@ -39,7 +41,7 @@ double GetAmountOfAddress(std::string address)
 }
 bool TransactionVerify(Transaction transaction)
 {
-    std::list<ABCDBlock>::iterator blockIt;
+    std::list<ABCDBlock*>::iterator blockIt;
     std::list<Transaction>::iterator transIt;
     
     double amount = 0;
@@ -51,8 +53,8 @@ bool TransactionVerify(Transaction transaction)
         case WalletRegistration:
             for(blockIt = blockList.begin(); blockIt != blockList.end(); blockIt++)
             {
-                for(transIt = blockIt->GetTransactionList().begin();
-                    transIt != blockIt->GetTransactionList().end();
+                for(transIt = (*blockIt)->GetTransactionList().begin();
+                    transIt != (*blockIt)->GetTransactionList().end();
                     transIt++)
                 {
                     if(transIt->GetTransactionType() == WalletRegistration &&
@@ -65,8 +67,8 @@ bool TransactionVerify(Transaction transaction)
         case Issue:
             for(blockIt = blockList.begin(); blockIt != blockList.end(); blockIt++)
             {
-                for(transIt = blockIt->GetTransactionList().begin();
-                    transIt != blockIt->GetTransactionList().end();
+                for(transIt = (*blockIt)->GetTransactionList().begin();
+                    transIt != (*blockIt)->GetTransactionList().end();
                     transIt++)
                 {
                     if(transIt->GetTransactionType() == WalletRegistration &&
@@ -83,8 +85,8 @@ bool TransactionVerify(Transaction transaction)
             
             for(blockIt = blockList.begin(); blockIt != blockList.end(); blockIt++)
             {
-                for(transIt = blockIt->GetTransactionList().begin();
-                    transIt != blockIt->GetTransactionList().end();
+                for(transIt = (*blockIt)->GetTransactionList().begin();
+                    transIt != (*blockIt)->GetTransactionList().end();
                     transIt++)
                 {
                     if(transIt->GetTransactionType() == Issue &&
@@ -120,8 +122,8 @@ bool TransactionVerify(Transaction transaction)
             
             for(blockIt = blockList.begin(); blockIt != blockList.end(); blockIt++)
             {
-                for(transIt = blockIt->GetTransactionList().begin();
-                    transIt != blockIt->GetTransactionList().end();
+                for(transIt = (*blockIt)->GetTransactionList().begin();
+                    transIt != (*blockIt)->GetTransactionList().end();
                     transIt++)
                 {
                     if(transIt->GetTransactionType() == Issue &&
@@ -159,35 +161,92 @@ bool TransactionVerify(Transaction transaction)
     
     return false;
 }
+bool BlockVerify()
+{
+	std::list<ABCDBlock*>::iterator nowIt;
+	std::list<ABCDBlock*>::iterator preIt;
 
-Json::Value GetBlockChainJson()
+	for (nowIt = blockList.begin(); nowIt != blockList.end(); nowIt++)
+	{
+		if ((*nowIt)->GetBlockId() == 0)
+		{
+			preIt = nowIt;
+			continue;
+		}
+
+		if ((*nowIt)->GetPreviousHash() != (*preIt)->GetBlockHash())
+			return false;
+
+		preIt = nowIt;
+	}
+
+	return true;
+}
+
+Json::Value GetBlockChainJsonValue()
 {
     Json::Value root;
     int index = 0;
-    std::list<ABCDBlock>::iterator it;
+    std::list<ABCDBlock*>::iterator it;
     for(it = blockList.begin(); it != blockList.end(); it++)
-        root[index++] = it->GetJsonValue();
+        root[index++] = (*it)->GetJsonValue();
     
     return root;
 }
 
 void WriteBlockToFile()
 {
-    std::cout << "Complete!"<<std::endl;
-    std::cout << GetBlockChainJson() << std::endl;
+	std::ofstream outfile;
+	outfile.open("ABCDBlockNode.json");
+    
+    outfile << GetBlockChainJsonValue();
+	std::cout << "Complete!" << std::endl;
+
+	outfile.close();
 }
 
 int main(int argc, const char * argv[]) {
 	ABCDBlock GenesisBlock(0, "");
-    blockList.push_back(GenesisBlock);
+    blockList.push_back(&GenesisBlock);
     GenesisBlock.Determine();
     
-    ABCDBlock Block1(1, GenesisBlock.GetBlockHash());
-    blockList.push_back(Block1);
-    Block1.AddTransaction(Transaction(WalletRegistration, "dsadfwegah29i31090sdfsd89a0gs890a"));
-    Block1.Determine();
+	ABCDBlock Block1(blockList.back()->GetBlockId() + 1 , blockList.back()->GetBlockHash());
+    blockList.push_back(&Block1);
+    blockList.back()->AddTransaction(Transaction(WalletRegistration, "dsadfwegah29i31090sdfsd89a0gs890a"));
+	blockList.back()->Determine();
+	
+	std::cout << BlockVerify() << std::endl;
+
+	ABCDBlock Block2(blockList.back()->GetBlockId() + 1, blockList.back()->GetBlockHash());
+	blockList.push_back(&Block2);
+	blockList.back()->AddTransaction(Transaction(Issue, "SUUPPPPPEEERRRRkey","dsadfwegah29i31090sdfsd89a0gs890a", 1000));
+	blockList.back()->Determine();
+
+	std::cout << BlockVerify() << std::endl;
+
+	ABCDBlock Block3(blockList.back()->GetBlockId() + 1, blockList.back()->GetBlockHash());
+	blockList.push_back(&Block3);
+	blockList.back()->AddTransaction(Transaction(Payment, "dsadfwegah29i31090sdfsd89a0gs890a", 30));
+	blockList.back()->Determine();
+
+	std::cout << BlockVerify() << std::endl;
+
+	ABCDBlock Block4(blockList.back()->GetBlockId() + 1, blockList.back()->GetBlockHash());
+	blockList.push_back(&Block4);
+	blockList.back()->AddTransaction(Transaction(Rental, "dsadfwegah29i31090sdfsd89a0gs890a", "Device1", 50, time(0), time(0) + 60*60*24*3));
+	blockList.back()->Determine();
+
+	std::cout << BlockVerify() << std::endl;
+
+	ABCDBlock Block5(blockList.back()->GetBlockId() + 1, blockList.back()->GetBlockHash());
+	blockList.push_back(&Block5);
+	blockList.back()->AddTransaction(Transaction(Return, "dsadfwegah29i31090sdfsd89a0gs890a", "Device1", 50, time(0) + 60 * 60 * 24 * 3, time(0)));
+	blockList.back()->Determine();
+
+	std::cout << BlockVerify() << std::endl;
     
     WriteBlockToFile();
+
     int a;
     std::cin>>a;
     
