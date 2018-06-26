@@ -38,18 +38,20 @@ ABCDBlock::ABCDBlock(Json::Value jsonValue)
 }
 void ABCDBlock::SetFromJson(Json::Value jsonValue)
 {
-    
-    Json::Value header = jsonValue["BlockHeader"];
+    _transactionList.clear();
+    Json::Value header = jsonValue["Header"];
     
     _blockId = header["BlockId"].asInt();
     _previousHash = header["PreviousHash"].asString();
     _blockLength = header["BlockLength"].asInt();
     _blockHash = header["BlockHash"].asString();
     
-    Json::Value body = jsonValue["BlockBody"];
-    for(int index = 0; index < body.size(); index++)
+    Json::Value transaction = jsonValue["Transaction"];
+    
+    for(int index = 0; index < transaction.size(); index++)
     {
-        Transaction transaction();
+        Transaction trans(transaction[index]);
+        _transactionList.push_back(trans);
     }
 }
 void ABCDBlock::AddTransaction(Transaction transaction)
@@ -66,7 +68,16 @@ int ABCDBlock::GetBlockLength()
 }
 std::string ABCDBlock::GetBlockHash()
 {
-	return std::string();
+    std::string blockJsonStr = "";
+    std::list<Transaction>::iterator it;
+    for(it = _transactionList.begin(); it != _transactionList.end(); it++)
+        blockJsonStr += it->GetJson();
+
+    SHA256 sha256;
+    
+    std::string HasedStr = sha256(blockJsonStr.c_str(), blockJsonStr.size());
+    
+	return HasedStr;
 }
 void ABCDBlock::Determine()
 {

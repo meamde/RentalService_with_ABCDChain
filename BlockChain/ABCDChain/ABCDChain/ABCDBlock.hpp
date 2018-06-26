@@ -9,10 +9,12 @@
 #ifndef ABCDBlock_hpp
 #define ABCDBlock_hpp
 
+#include "sha256.h"
 #include <iostream>
 #include <list>
 #include "Transaction.hpp"
 #include "json/json.h"
+
 
 #define TRANSACTION_COUNT 1
 

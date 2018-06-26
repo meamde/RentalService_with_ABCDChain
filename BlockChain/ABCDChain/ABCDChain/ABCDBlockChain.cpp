@@ -160,9 +160,36 @@ bool TransactionVerify(Transaction transaction)
     return false;
 }
 
+Json::Value GetBlockChainJson()
+{
+    Json::Value root;
+    int index = 0;
+    std::list<ABCDBlock>::iterator it;
+    for(it = blockList.begin(); it != blockList.end(); it++)
+        root[index++] = it->GetJsonValue();
+    
+    return root;
+}
+
+void WriteBlockToFile()
+{
+    std::cout << "Complete!"<<std::endl;
+    std::cout << GetBlockChainJson() << std::endl;
+}
+
 int main(int argc, const char * argv[]) {
-	//ABCDBlock BlockOne;
-
-
+	ABCDBlock GenesisBlock(0, "");
+    blockList.push_back(GenesisBlock);
+    GenesisBlock.Determine();
+    
+    ABCDBlock Block1(1, GenesisBlock.GetBlockHash());
+    blockList.push_back(Block1);
+    Block1.AddTransaction(Transaction(WalletRegistration, "DSJLFJKSFJLE29i31090sdfsd89a0gs890a"));
+    Block1.Determine();
+    
+    WriteBlockToFile();
+    int a;
+    std::cin>>a;
+    
     return 0;
 }
