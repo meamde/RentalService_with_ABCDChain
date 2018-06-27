@@ -1,5 +1,6 @@
 package com.example.darkness.abcdmobile;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
@@ -14,10 +15,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -40,6 +48,25 @@ public class MainActivity extends AppCompatActivity {
     PrivateKey privatekey = null;
     byte[] publicKeyBytes = null;
     @Override
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if(result != null) {
+            if(result.getContents() == null) {
+                Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    public void startQRCode(){
+
+        new IntentIntegrator(this).initiateScan();
+    }
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -50,12 +77,13 @@ public class MainActivity extends AppCompatActivity {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        keyGenerator.initialize(1024);
+        keyGenerator.initialize(2048);
         KeyPair keyPair = keyGenerator.generateKeyPair();
         publickey = keyPair.getPublic();
         privatekey = keyPair.getPrivate();
         Button genButton = findViewById(R.id.GenButton);
         genButton.setOnClickListener(new OnClickListener() {
+            //키를 생성하고 PublicKey와 PrivateKey를 Base64로 인코딩된 String으로 앱에 저장.
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onClick(View view) {
@@ -95,6 +123,45 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button sbtn = findViewById(R.id.SocketButton);
+        sbtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startQRCode();
+            }
+        });
+
+        /*
+        Button sbtn = findViewById(R.id.SocketButton);
+        sbtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Socket socket = null;
+                try {
+                    socket = new Socket("192.168.139.129",4000);
+                } catch (IOException e) {
+                    Toast.makeText(getApplicationContext(), "error socket", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
+
+                OutputStream out = null;
+                try {
+                    out = socket.getOutputStream();
+                } catch (IOException e) {
+                    Toast.makeText(getApplicationContext(), "error stream", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
+                DataOutputStream dos = new DataOutputStream(out); // 기본형 단위로 처리하는 보조스트림
+                try {
+                    Log.d("socket", new String(publickey.getEncoded()));
+                    dos.write(publickey.getEncoded());
+                } catch (IOException e) {
+                    Toast.makeText(getApplicationContext(), "error writhe", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
+
+            }
+        });*/
 
         Button btn = findViewById(R.id.button);
         btn.setOnClickListener(new OnClickListener() {
@@ -124,4 +191,5 @@ public class MainActivity extends AppCompatActivity {
          }
         });
     }
+
 }
