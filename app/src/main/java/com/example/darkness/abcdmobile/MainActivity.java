@@ -27,13 +27,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.spec.ECGenParameterSpec;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -51,26 +54,91 @@ public class MainActivity extends AppCompatActivity {
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if(result != null) {
+        if (requestCode == IntentIntegrator.REQUEST_CODE) {
             if(result.getContents() == null) {
                 Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
+                //Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
+                //       // result.getFormatName() : 바코드 종류
+                //       // result.getContents() : 바코드 값
+                String resultStr =  result.getContents();
+                Toast.makeText(this, "Scanned: " + resultStr, Toast.LENGTH_LONG).show();
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
-
     public void startQRCode(){
-
         new IntentIntegrator(this).initiateScan();
+    }
+
+    public void createWallet(){
+
+        KeyPairGenerator kpg = null;
+        try {
+            kpg = KeyPairGenerator.getInstance("EC");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        ECGenParameterSpec ecsp ;
+
+        ecsp  = new ECGenParameterSpec("secp521r1");
+        try {
+            kpg.initialize(ecsp , new SecureRandom());
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        }
+
+        //랜덤으로 키 만들기.
+
+        KeyPair kp = kpg.generateKeyPair();
+        PrivateKey privateKey = kp.getPrivate();
+        PublicKey publicKey = kp.getPublic();
+        //여기서 노드랑 연결해서 지갑이 유효한지
+
+        //startQRCode();
+
+        //지갑의 생성조건을 만족하면 아래실행.
+        /*
+        SharedPreferences pref = getPreferences("PREF",MODE_PRIVATE);
+        SharedPreferences.Editor ed = pref.edit();
+
+
+        ed.commit();*/
+
+        TextView txtView1 = findViewById(R.id.textView);
+        txtView1.setText(publicKey.toString());
+        ((TextView)findViewById(R.id.textView2)).setText(privateKey.toString());
     }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //ECC로 생성된 key들은 bytes -> BASE64로 인코딩된 String으로 저장된다.
+        //publicKey, privateKey, wallet(sha256으로 한번 해쉬된)
+        //isRetal = false, product, rentalTime, period(hour), nodeId를 따로 저장.
 
+        Button createWalletButton = findViewById(R.id.createwalletbutton);
+        createWalletButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SharedPreferences prefs = getSharedPreferences("PREF", MODE_PRIVATE);
+                String publicKeyString = prefs.getString("pulbicKey", null);
+                if(publicKeyString == null){
+                    //start create wallet
+                    createWallet();
+                    Toast.makeText(getApplicationContext(),"You have wallet", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    //새로운 지갑을 만들라고 한다.
+                    //이때 렌탈이 되지 않으면.
+                    //createWallet()..
+                }
+            }
+        });
+
+
+        /*
         KeyPairGenerator keyGenerator = null;
         try {
             keyGenerator = KeyPairGenerator.getInstance("RSA");
@@ -130,6 +198,9 @@ public class MainActivity extends AppCompatActivity {
                 startQRCode();
             }
         });
+        */
+
+
 
         /*
         Button sbtn = findViewById(R.id.SocketButton);
@@ -162,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });*/
-
+        /*
         Button btn = findViewById(R.id.button);
         btn.setOnClickListener(new OnClickListener() {
             @Override
@@ -190,6 +261,7 @@ public class MainActivity extends AppCompatActivity {
 
          }
         });
+        */
     }
 
 }
