@@ -14,6 +14,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <pthread.h>
+#include "../CJson/cJSON.h"
 
 #pragma warning(disable: 4996)
 #define _CRT_SECURE_NO_WARNINGS
@@ -44,19 +45,19 @@ int main(int argc, char *argv[])
 	serv_sock = socket(PF_INET, SOCK_STREAM, 0);
 
 	memset(&serv_adr, 0, sizeof(serv_adr));
-	serv_adr.sin_family=AF_INET; 
-	serv_adr.sin_addr.s_addr=htonl(INADDR_ANY);
-	serv_adr.sin_port=htons(atoi(argv[1]));
+	serv_adr.sin_family = AF_INET; 
+	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
+	serv_adr.sin_port = htons(atoi(argv[1]));
 	
-	if(bind(serv_sock, (struct sockaddr*) &serv_adr, sizeof(serv_adr))==-1)
+	if(bind(serv_sock, (struct sockaddr*) &serv_adr, sizeof(serv_adr)) == -1)
 		error_handling("bind() error");
 	
-	if(listen(serv_sock, 5)==-1)
+	if(listen(serv_sock, 5) == -1)
 		error_handling("listen() error");
 	
 	while(1)
 	{
-		clnt_adr_sz=sizeof(clnt_adr);
+		clnt_adr_sz = sizeof(clnt_adr);
 		clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);
 		
 		pthread_mutex_lock(&mutx);

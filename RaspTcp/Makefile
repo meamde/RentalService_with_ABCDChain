@@ -14,8 +14,6 @@ RaspServer.exe :$(OBJECTS)
 
 RaspServer.o : $(SOURCES)
 			   gcc -c  $(SOURCES) -D_REENTRANT -lpthread
-
-
 			   
 
 # end of Makefile
