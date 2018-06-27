@@ -72,45 +72,6 @@ public class MainActivity extends AppCompatActivity {
         new IntentIntegrator(this).initiateScan();
     }
 
-    public void createWallet(){
-
-        KeyPairGenerator kpg = null;
-        try {
-            kpg = KeyPairGenerator.getInstance("EC");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        ECGenParameterSpec ecsp ;
-
-        ecsp  = new ECGenParameterSpec("secp521r1");
-        try {
-            kpg.initialize(ecsp , new SecureRandom());
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        }
-
-        //랜덤으로 키 만들기.
-
-        KeyPair kp = kpg.generateKeyPair();
-        PrivateKey privateKey = kp.getPrivate();
-        PublicKey publicKey = kp.getPublic();
-        //여기서 노드랑 연결해서 지갑이 유효한지
-
-        //startQRCode();
-
-        //지갑의 생성조건을 만족하면 아래실행.
-        /*
-        SharedPreferences pref = getPreferences("PREF",MODE_PRIVATE);
-        SharedPreferences.Editor ed = pref.edit();
-
-
-        ed.commit();*/
-
-        TextView txtView1 = findViewById(R.id.textView);
-        txtView1.setText(publicKey.toString());
-        ((TextView)findViewById(R.id.textView2)).setText(privateKey.toString());
-    }
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -126,13 +87,12 @@ public class MainActivity extends AppCompatActivity {
                 String publicKeyString = prefs.getString("pulbicKey", null);
                 if(publicKeyString == null){
                     //start create wallet
-                    createWallet();
-                    Toast.makeText(getApplicationContext(),"You have wallet", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(MainActivity.this, CreateWalletActivity.class);
+                    startActivity(intent);
                 }
                 else{
                     //새로운 지갑을 만들라고 한다.
                     //이때 렌탈이 되지 않으면.
-                    //createWallet()..
                 }
             }
         });
