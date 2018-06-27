@@ -5,6 +5,7 @@
 //  Created by HwaSeok Shin on 2018. 6. 22..
 //  Copyright © 2018년 HwaSeok Shin. All rights reserved.
 //
+#define ASIO_STANDALONE
 
 #include <iostream>
 #include <fstream>
@@ -13,9 +14,13 @@
 #include "ABCDBlock.hpp"
 #include "Transaction.hpp"
 #include "json/json.h"
+#include "asio.hpp"
+
+using asio::ip::tcp;
 
 std::list<ABCDBlock*> blockList;
 std::list<std::string> nodeAdressList;
+
 
 double GetAmountOfAddress(std::string address)
 {
