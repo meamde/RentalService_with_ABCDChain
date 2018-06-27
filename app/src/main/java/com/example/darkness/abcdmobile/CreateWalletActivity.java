@@ -4,19 +4,23 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -98,7 +102,7 @@ public class CreateWalletActivity extends AppCompatActivity{
             @Override
             public void onClick(View view) {
                 //checkCreatable();
-                if(returnString == null){
+                if(returnString != null){
                     //Zxing IntentIntegrator부분을 동기식으로 구현을 못해서 이렇게 함.
                     Toast.makeText(getApplicationContext(), "First Scan the QRcode", Toast.LENGTH_SHORT).show();
                     return ;
@@ -129,12 +133,18 @@ public class CreateWalletActivity extends AppCompatActivity{
                     //Socket부분 연동시켜서 publicKey, privateKey부분 넘기기.
 
                     TextView publicKeyView = findViewById(R.id.publickeyview);
-                    publicKeyView.setText(publicKey.toString());
+                    byte[] bytes = publicKey.getEncoded();
+                    StringBuilder sb = new StringBuilder(bytes.length * 2);
+                    for(byte b: bytes)
+                        sb.append(String.format("%02x ", b));
+                    publicKeyView.setText(sb.toString());
 
 
                     //지갑키가 유효하다면.
                     //여기서 노드랑 소켓통신을 일으켜 키가 유효한지 판별한다.
                     //유효하면 지갑주소, publicKey, privateKey를 저장한다.
+
+
                     /*
                     SharedPreferences prefs = getSharedPreferences("PREF", MODE_PRIVATE);
                     SharedPreferences.Editor ed = prefs.edit();

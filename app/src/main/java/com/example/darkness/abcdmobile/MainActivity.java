@@ -25,6 +25,7 @@ import javax.crypto.SecretKey;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
@@ -68,6 +69,35 @@ public class MainActivity extends AppCompatActivity {
                 //publicKey가 있는 경우도 CreateWallet부분에서 처리한다.
                 Intent intent = new Intent(MainActivity.this, CreateWalletActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        Button rentalButton = findViewById(R.id.rentalbutton);
+        rentalButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Socket socket = null;
+                OutputStream stream = null;
+                try {
+                    socket = new Socket("192.168.1.4",7000);
+                    stream = socket.getOutputStream();
+                    stream.write("test".getBytes());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(),"not connet", Toast.LENGTH_SHORT).show();
+                }
+
+                /*
+                try {
+                    stream = socket.getOutputStream();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                // 그리고 현재 날짜를 출력해줍니다.
+                try {
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }*/
             }
         });
     }
