@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -32,11 +33,7 @@ public class CreateWalletActivity extends AppCompatActivity{
             if(result.getContents() == null) {
                 Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
             } else {
-                //Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
-                //       // result.getFormatName() : 바코드 종류
-                //       // result.getContents() : 바코드 값
                 returnString =  result.getContents();
-                Toast.makeText(this, "Scanned: " + returnString, Toast.LENGTH_LONG).show();
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
@@ -46,37 +43,6 @@ public class CreateWalletActivity extends AppCompatActivity{
         new IntentIntegrator(this).initiateScan();
     }
 
-
-
-    public void generateKey(){
-
-        KeyPairGenerator kpg = null;
-        try {
-            kpg = KeyPairGenerator.getInstance("EC");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        ECGenParameterSpec ecsp ;
-
-        ecsp  = new ECGenParameterSpec("secp521r1");
-        try {
-            kpg.initialize(ecsp , new SecureRandom());
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        }
-
-        //랜덤으로 키 만들기.
-
-        KeyPair kp = kpg.generateKeyPair();
-        PrivateKey privateKey = kp.getPrivate();
-        PublicKey publicKey = kp.getPublic();
-        //여기서 노드랑 연결해서 지갑이 유효한지
-
-
-        TextView txtView1 = findViewById(R.id.textView);
-        txtView1.setText(publicKey.toString());
-        ((TextView)findViewById(R.id.textView2)).setText(privateKey.toString());
-    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -97,13 +63,54 @@ public class CreateWalletActivity extends AppCompatActivity{
             @Override
             public void onClick(View view) {
                 if(returnString == null){
+                    //Zxing IntentIntegrator부분을 동기식으로 구현을 못해서 이렇게 함.
                     Toast.makeText(getApplicationContext(), "First Scan the QRcode", Toast.LENGTH_SHORT).show();
                     return ;
                 }
                 else{
                     //키 생성과
+                    KeyPairGenerator kpg = null;
+                    try {
+                        kpg = KeyPairGenerator.getInstance("EC");
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                    }
+                    ECGenParameterSpec ecsp ;
+
+                    ecsp  = new ECGenParameterSpec("secp521r1");
+                    try {
+                        //랜덤으로 키 만들기.
+                        kpg.initialize(ecsp , new SecureRandom());
+                    } catch (InvalidAlgorithmParameterException e) {
+                        e.printStackTrace();
+                    }
+
+                    KeyPair kp = kpg.generateKeyPair();
+                    PrivateKey privateKey = kp.getPrivate();
+                    PublicKey publicKey = kp.getPublic();
 
                     //노드와 소켓 연결해서 지갑이 유효한지 체크.
+                    //Socket부분 연동시켜서 publicKey, privateKey부분 넘기기.
+
+                    SharedPreferences prefs = getSharedPreferences("PREF", MODE_PRIVATE);
+                    Boolean isGen = prefs.getBoolean("isGenerated", false);
+
+                    Toast.makeText(getApplicationContext(),isGen.toString(), Toast.LENGTH_SHORT).show();
+
+                    TextView publicKeyView = findViewById(R.id.publickeyview);
+
+                    publicKeyView.setText(publicKey.toString());
+
+                    //지갑키가 유효하다면.
+                    /*
+                    SharedPreferences prefs = getSharedPreferences("PREF", MODE_PRIVATE);
+                    SharedPreferences.Editor ed = prefs.edit();
+                    ed.putBoolean("isGenerated", true);
+                    //publicKey, privateKey는 바이트를 구해서 그걸 Base64를 이용 문자로 인코딩을 한다.
+                    ed.putString("publicKeyStr", Base64.encodeToString(publicKey.getEncoded(), Base64.DEFAULT));
+                    ed.putString("privateKeyStr",Base64.encodeToString(privateKey.getEncoded(), Base64.DEFAULT));
+                    ed.commit();
+                    */
                 }
             }
         });
