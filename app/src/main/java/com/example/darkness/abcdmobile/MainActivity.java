@@ -59,25 +59,15 @@ public class MainActivity extends AppCompatActivity {
         //publicKey, privateKey, wallet(sha256으로 한번 해쉬된)
         //isRetal = false, product, rentalTime, period(hour), nodeId를 따로 저장.
 
+
         Button createWalletButton = findViewById(R.id.createwalletbutton);
         createWalletButton.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View view) {
-                SharedPreferences prefs = getSharedPreferences("PREF", MODE_PRIVATE);
-                String publicKeyString = prefs.getString("pulbicKey", null);
-                if(publicKeyString == null){
-
-                    SharedPreferences.Editor ed = prefs.edit();
-                    ed.putBoolean("isGenerated", true);
-                    ed.commit();
-                    Intent intent = new Intent(MainActivity.this, CreateWalletActivity.class);
-                    startActivity(intent);
-                }
-                else{
-                    //새로운 지갑을 만들라고 한다.
-                    //이때 렌탈이 되지 않으면.
-                }
+                //publicKey가 있는 경우도 CreateWallet부분에서 처리한다.
+                Intent intent = new Intent(MainActivity.this, CreateWalletActivity.class);
+                startActivity(intent);
             }
         });
     }

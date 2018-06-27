@@ -1,13 +1,16 @@
 package com.example.darkness.abcdmobile;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +37,11 @@ public class CreateWalletActivity extends AppCompatActivity{
                 Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
             } else {
                 returnString =  result.getContents();
+
+                //TextView에 String 적용
+                TextView qrCodeIP = findViewById(R.id.QRcode);
+                qrCodeIP.setText(returnString);
+
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
@@ -43,12 +51,39 @@ public class CreateWalletActivity extends AppCompatActivity{
         new IntentIntegrator(this).initiateScan();
     }
 
+    public void checkCreatable() {
+
+        SharedPreferences pref = getSharedPreferences(PREFString.name, MODE_PRIVATE);
+        String publicKey = pref.getString(PREFString.publicKey, null);
+        if (publicKey != null) {
+            return;
+        } else {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Aleady you have Key, You want to new one?");
+            builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User clicked OK button
+                    return;
+                }
+            });
+            builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User cancelled the dialog
+                    Toast.makeText(getApplicationContext(), "end", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+    }
+
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_createwallet);
-
         Button createCheckButton = findViewById(R.id.createcheckbutton);
         createCheckButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,6 +97,7 @@ public class CreateWalletActivity extends AppCompatActivity{
         generateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //checkCreatable();
                 if(returnString == null){
                     //Zxing IntentIntegrator부분을 동기식으로 구현을 못해서 이렇게 함.
                     Toast.makeText(getApplicationContext(), "First Scan the QRcode", Toast.LENGTH_SHORT).show();
@@ -77,7 +113,7 @@ public class CreateWalletActivity extends AppCompatActivity{
                     }
                     ECGenParameterSpec ecsp ;
 
-                    ecsp  = new ECGenParameterSpec("secp521r1");
+                    ecsp  = new ECGenParameterSpec("secp256k1");
                     try {
                         //랜덤으로 키 만들기.
                         kpg.initialize(ecsp , new SecureRandom());
@@ -92,16 +128,13 @@ public class CreateWalletActivity extends AppCompatActivity{
                     //노드와 소켓 연결해서 지갑이 유효한지 체크.
                     //Socket부분 연동시켜서 publicKey, privateKey부분 넘기기.
 
-                    SharedPreferences prefs = getSharedPreferences("PREF", MODE_PRIVATE);
-                    Boolean isGen = prefs.getBoolean("isGenerated", false);
-
-                    Toast.makeText(getApplicationContext(),isGen.toString(), Toast.LENGTH_SHORT).show();
-
                     TextView publicKeyView = findViewById(R.id.publickeyview);
-
                     publicKeyView.setText(publicKey.toString());
 
+
                     //지갑키가 유효하다면.
+                    //여기서 노드랑 소켓통신을 일으켜 키가 유효한지 판별한다.
+                    //유효하면 지갑주소, publicKey, privateKey를 저장한다.
                     /*
                     SharedPreferences prefs = getSharedPreferences("PREF", MODE_PRIVATE);
                     SharedPreferences.Editor ed = prefs.edit();
