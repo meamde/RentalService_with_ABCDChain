@@ -5,15 +5,18 @@
 #
 #
 #
-OBJECTS = RaspServer.o 
+OBJECTS = RaspServer.o cJSON.o 
 SOURCES = RaspServer.c
 
 RaspServer.exe :$(OBJECTS)
-			gcc -o  RaspServer $(OBJECTS) -D_REENTRANT -lpthread
+			gcc -o  RaspServer $(OBJECTS) -D_REENTRANT -lpthread  -lcjson
 
 
 RaspServer.o : $(SOURCES)
-			   gcc -c  $(SOURCES) -D_REENTRANT -lpthread
+			   gcc -c  $(SOURCES) -D_REENTRANT -lpthread -lcjson
+
+cJSON.o : cJSON.c
+			gcc -c  cJSON.c -D_REENTRANT -lpthread -lcjson
 			   
 
 # end of Makefile

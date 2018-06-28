@@ -14,8 +14,11 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "../CJson/cJSON.h"
+#include <cjson/cJSON.h>
+#include "cjson/cJSON.h"
+#include "cJSON.h"
 #include "RaspServer.h"
+
 
 #pragma warning(disable: 4996)
 #define _CRT_SECURE_NO_WARNINGS
@@ -45,6 +48,7 @@ int main(int argc, char *argv[])
 void InterAndro(int argc,char *argv[] ) 
 {
 	int serv_sock, clnt_sock;
+	int nSockOpt = 1;
 	struct sockaddr_in serv_adr, clnt_adr;
 	socklen_t clnt_adr_sz;
 	pthread_t serversnd_thread, serverrcv_thread;
@@ -69,6 +73,9 @@ void InterAndro(int argc,char *argv[] )
 	serv_adr.sin_family = AF_INET; 
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
 	serv_adr.sin_port = htons(atoi(argv[1]));	//port number
+
+	setsockopt(serv_sock, SOL_SOCKET, SO_REUSEADDR, &nSockOpt, sizeof(nSockOpt));
+	//Prevention of the same port's bind error
 	
 	if(bind(serv_sock, (struct sockaddr*) &serv_adr, sizeof(serv_adr)) == -1)
 		error_handling("bind() error");
@@ -77,7 +84,7 @@ void InterAndro(int argc,char *argv[] )
 		error_handling("listen() error");
 	
 	epfd = epoll_create(EPOLL_SIZE);
-	ep_events = malloc(sizeof(struct epoll_event)*EPOLL_SIZE);
+	ep_events = (struct epoll_event *)malloc(sizeof(struct epoll_event)*EPOLL_SIZE);
 
 	setnonblockingmode(serv_sock);	//Non-blocking Mode
 	event.events = EPOLLIN;
@@ -106,7 +113,7 @@ void InterAndro(int argc,char *argv[] )
 				event.events = EPOLLIN|EPOLLET;
 				event.data.fd = clnt_sock;
 				epoll_ctl(epfd, EPOLL_CTL_ADD, clnt_sock, &event);
-				printf("connected client: %d \n", clnt_sock);
+				printf("connected file descriptor of client: %d \n", clnt_sock);
 			}
 			else
 			{
@@ -117,7 +124,7 @@ void InterAndro(int argc,char *argv[] )
 						{
 							epoll_ctl(epfd, EPOLL_CTL_DEL, ep_events[i].data.fd, NULL);
 							close(ep_events[i].data.fd);
-							printf("closed client: %d \n", ep_events[i].data.fd);
+							printf("closed file descriptor of client: %d \n", ep_events[i].data.fd);
 							break;
 						}
 						else if(str_len < 0)
@@ -126,12 +133,31 @@ void InterAndro(int argc,char *argv[] )
 								break;
 						}
 						else	//Request to BlockChain
-						{							
-							//pthread_create(&serversnd_thread, NULL, InterBlock(buf)
-							//			   ,(void*)&ep_events[i].data.fd);
-							//pthread_detach(serversnd_thread);
-					
+						{	
+							
+												
+							if(strcmp(buf, "InitialConnect"))
+							{
+								printf("From App:%s\n", buf);
+								//cJSON * Temp = NULL;
+								//Temp = SetFromJson(buf);				
+								strcpy(buf,"{\"Body\":{\"UserAddress\":\"D8F9D0A480DF7599F2F35DD8C83463332285D67DE2D0E8FDE8E979C810B4D07B\" , \"DeviceId\":\"Device1\"},\"Header\":{\"Type\":\"InitialConnect\",\"PublicKey\":\"02F0F20701B911FFC3B312BEF534C968F9FE442A6AF606BAE1A68A4BCB7A55DFFB\",\"EncryptR\":\"1D243BF0CEF18B9F104D5EF8F501C76233A3EC9F89F77F713F5E14603F0E755A\",\"EncryptS\":\"00AED183E38009C567BEA2F7BA6129C59283BAC9305E0ABB1B9062D646C8DFCFC1\"}}");			
+								
+								
+								write(ep_events[i].data.fd, buf, sizeof(buf));
+								//printf("jsonbuf%s\n", (char *)Temp);
+								//일단 어플리케이션에 디바이스추가해서 재전송
+							}
+							else
+							{
+										
 							write(ep_events[i].data.fd, InterBlock(buf), str_len); 
+							}
+							//strncpy(buf,buf,sizeof(buf)-2);
+							//strcat(buf,"\“DeviceId\” : \“Device1\”}}");
+							//write(ep_events[i].data.fd, buf, str_len);
+							//write(ep_events[i].data.fd, InterBlock(buf), str_len); 
+							 
 						}
 				}
 			}
@@ -165,7 +191,7 @@ void *InterBlock(char *buf) //act like client
 	
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
-	serv_adr.sin_addr.s_addr = inet_addr("112.171.23.97");
+	serv_adr.sin_addr.s_addr = inet_addr("127.0.0.1");
 	serv_adr.sin_port = htons(atoi("7777"));
 	
 	if(connect(sock, (struct sockaddr*)&serv_adr, sizeof(serv_adr)) == -1)
@@ -232,5 +258,34 @@ void setnonblockingmode(int fd)
 {
 	int flag=fcntl(fd, F_GETFL, 0);
 	fcntl(fd, F_SETFL, flag|O_NONBLOCK);
+}
+
+cJSON *SetFromJson(char *buf)
+{
+	cJSON * json = cJSON_Parse(buf);
+	cJSON * Type = NULL;
+	cJSON * Body = NULL;
+	cJSON * DeviceId = NULL;
+	cJSON * UserAddress = NULL;
+	//uint32_t valid_json = 0;
+	//bool led_operation = false;
+	if(json != NULL)
+	{
+		Type = cJSON_GetObjectItem(json, "InitialConnect");
+		Body = cJSON_GetObjectItem(json, "Body");
+		//밑에 switch(Type)으로 변경 나중에
+		
+		UserAddress =  cJSON_GetObjectItem(json, "UserAddress");
+			
+		if(Type != NULL && Type->valuestring !=NULL)
+		{
+			cJSON_AddItemToObject(json, "DeviceId", DeviceId=cJSON_CreateObject());
+			cJSON_AddStringToObject(Body, "device1", "DeviceId");
+			return json;
+		}
+		
+	}
+
+
 }
 
