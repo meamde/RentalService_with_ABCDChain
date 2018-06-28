@@ -27,6 +27,7 @@
 
 int clnt_cnt = 0;
 int clnt_socks[MAX_CLNT];
+char jsonarr[BUF_SIZE];
 pthread_mutex_t mutx;
 
 int main(int argc, char *argv[])
@@ -34,7 +35,7 @@ int main(int argc, char *argv[])
 	
 
 	InterAndro(argc, argv); //나중에는 andro안에서 block이 호출되어야함
-	// InterBlock("askjjdhskdjkjs");//for debug Client test
+	 //InterBlock("askjjdhskdjkjs");//for debug Client test
 		
 	return 0;
 }
@@ -126,16 +127,11 @@ void InterAndro(int argc,char *argv[] )
 						}
 						else	//Request to BlockChain
 						{							
-							pthread_create(&serversnd_thread, NULL, InterBlock(buf)
-										   ,(void*)&ep_events[i].data.fd);
-							pthread_detach(serversnd_thread);
-							
-							pthread_create(&serverrcv_thread, NULL, InterBlock(buf)
-										   ,(void*)&serv_sock);
-							pthread_detach(serverrcv_thread);
-							
-
-							//write(ep_events[i].data.fd, buf, str_len); 
+							//pthread_create(&serversnd_thread, NULL, InterBlock(buf)
+							//			   ,(void*)&ep_events[i].data.fd);
+							//pthread_detach(serversnd_thread);
+					
+							write(ep_events[i].data.fd, InterBlock(buf), str_len); 
 						}
 				}
 			}
@@ -149,8 +145,8 @@ void InterAndro(int argc,char *argv[] )
 void *InterBlock(char *buf) //act like client
 {
 	int sock;
-	char jsonarr[BUF_SIZE];
-	buf="{ \"Body\" : null,	\"Header\" :	{		\"Type\" : \"NodeBroadCast\"	} }";
+	
+	//buf="{ \"Body\" : null,	\"Header\" :	{		\"Type\" : \"NodeBroadCast\"	} }";
 
  
 	strncpy(jsonarr,buf,BUF_SIZE);
@@ -169,7 +165,7 @@ void *InterBlock(char *buf) //act like client
 	
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
-	serv_adr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	serv_adr.sin_addr.s_addr = inet_addr("112.171.23.97");
 	serv_adr.sin_port = htons(atoi("7777"));
 	
 	if(connect(sock, (struct sockaddr*)&serv_adr, sizeof(serv_adr)) == -1)
@@ -182,7 +178,10 @@ void *InterBlock(char *buf) //act like client
 		write(sock, jsonarr, sizeof(jsonarr)); 
 		str_len = read(sock, jsonarr, BUF_SIZE-1);
 		jsonarr[str_len] = 0;
-		printf("Json from BlockChain: %s\n", jsonarr);
+		//if(strcmp(jsonarr," "))
+		
+		printf("%s\n", jsonarr);
+		return (char *)jsonarr;
 	}
 	close(sock);
 }
