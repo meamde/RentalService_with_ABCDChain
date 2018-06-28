@@ -86,11 +86,13 @@ std::string ABCDBlock::GetBlockHash()
         blockJsonStr += it->GetJson();
 
 	blockJsonStr += _previousHash;
-
-	blockJsonStr += _nonce + "";
+    
+    std::ostringstream oss;
+    oss << _nonce;
+    blockJsonStr += oss.str();
 
     SHA256 sha256;
-    
+
     std::string HasedStr = sha256(blockJsonStr.c_str(), blockJsonStr.size());
     
 	return HasedStr;

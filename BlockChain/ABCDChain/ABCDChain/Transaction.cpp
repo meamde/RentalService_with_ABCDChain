@@ -193,7 +193,7 @@ Json::Value Transaction::GetJsonValue()
             break;
     }
 
-	root["TimeStamp"] = _timeStamp;
+	root["TimeStamp"] = (Json::Int64)_timeStamp;
 
     return root;
 }

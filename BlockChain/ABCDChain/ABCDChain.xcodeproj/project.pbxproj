@@ -7,11 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B2538AA720E35F720057D7D3 /* asio.hpp in Sources */ = {isa = PBXBuildFile; fileRef = B2538AA520E358040057D7D3 /* asio.hpp */; };
 		B259C81620E1E2980061A517 /* ABCDBlockChain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B259C81020E1E2970061A517 /* ABCDBlockChain.cpp */; };
 		B259C81720E1E2980061A517 /* ABCDBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B259C81120E1E2970061A517 /* ABCDBlock.cpp */; };
 		B259C81820E1E2980061A517 /* Transaction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B259C81320E1E2980061A517 /* Transaction.cpp */; };
 		B259C81920E1E2980061A517 /* jsoncpp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B259C81420E1E2980061A517 /* jsoncpp.cpp */; };
 		B259C8CA20E1F2350061A517 /* sha256.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B259C8C820E1F2340061A517 /* sha256.cpp */; };
+		B2ECFB6020E52788006113C4 /* libsecp256k1.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B2ECFB5B20E522F9006113C4 /* libsecp256k1.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -27,6 +29,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B2538AA520E358040057D7D3 /* asio.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = asio.hpp; sourceTree = "<group>"; };
+		B2538AA620E358040057D7D3 /* asio */ = {isa = PBXFileReference; lastKnownFileType = folder; path = asio; sourceTree = "<group>"; };
 		B259C80F20E1E2970061A517 /* Transaction.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Transaction.hpp; sourceTree = "<group>"; };
 		B259C81020E1E2970061A517 /* ABCDBlockChain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ABCDBlockChain.cpp; sourceTree = "<group>"; };
 		B259C81120E1E2970061A517 /* ABCDBlock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ABCDBlock.cpp; sourceTree = "<group>"; };
@@ -36,7 +40,11 @@
 		B259C81520E1E2980061A517 /* ABCDBlock.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ABCDBlock.hpp; sourceTree = "<group>"; };
 		B259C8C820E1F2340061A517 /* sha256.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sha256.cpp; sourceTree = "<group>"; };
 		B259C8C920E1F2350061A517 /* sha256.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sha256.h; sourceTree = "<group>"; };
-		B28823E120E1E21400EF453B /* ABCDChain */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = ABCDChain; path = /Users/meamde/Documents/University/RentalService_with_ABCDChain/BlockChain/ABCDChain/build/Release/ABCDChain; sourceTree = "<absolute>"; };
+		B25EE76E20E5095B001E9297 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; path = include; sourceTree = "<group>"; };
+		B2ECFB5920E51169006113C4 /* ABCDChain */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = ABCDChain; path = /Users/meamde/Documents/University/RentalService_with_ABCDChain/BlockChain/ABCDChain/build/Debug/ABCDChain; sourceTree = "<absolute>"; };
+		B2ECFB5B20E522F9006113C4 /* libsecp256k1.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsecp256k1.a; path = ABCDChain/Lib/libsecp256k1.a; sourceTree = "<group>"; };
+		B2ECFB5D20E5232C006113C4 /* libsecp256k1.la */ = {isa = PBXFileReference; lastKnownFileType = text; name = libsecp256k1.la; path = ABCDChain/Lib/libsecp256k1.la; sourceTree = "<group>"; };
+		B2ECFB5F20E523A3006113C4 /* Lib */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Lib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,6 +52,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2ECFB6020E52788006113C4 /* libsecp256k1.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -54,12 +63,17 @@
 			isa = PBXGroup;
 			children = (
 				B28823E320E1E21400EF453B /* ABCDChain */,
+				B2ECFB5A20E522F9006113C4 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
 		B28823E320E1E21400EF453B /* ABCDChain */ = {
 			isa = PBXGroup;
 			children = (
+				B2ECFB5F20E523A3006113C4 /* Lib */,
+				B25EE76E20E5095B001E9297 /* include */,
+				B2538AA620E358040057D7D3 /* asio */,
+				B2538AA520E358040057D7D3 /* asio.hpp */,
 				B259C8C820E1F2340061A517 /* sha256.cpp */,
 				B259C8C920E1F2350061A517 /* sha256.h */,
 				B259C81120E1E2970061A517 /* ABCDBlock.cpp */,
@@ -71,6 +85,15 @@
 				B259C80F20E1E2970061A517 /* Transaction.hpp */,
 			);
 			path = ABCDChain;
+			sourceTree = "<group>";
+		};
+		B2ECFB5A20E522F9006113C4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B2ECFB5D20E5232C006113C4 /* libsecp256k1.la */,
+				B2ECFB5B20E522F9006113C4 /* libsecp256k1.a */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -90,7 +113,7 @@
 			);
 			name = ABCDChain;
 			productName = ABCDChain;
-			productReference = B28823E120E1E21400EF453B /* ABCDChain */;
+			productReference = B2ECFB5920E51169006113C4 /* ABCDChain */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -129,6 +152,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2538AA720E35F720057D7D3 /* asio.hpp in Sources */,
 				B259C81820E1E2980061A517 /* Transaction.cpp in Sources */,
 				B259C8CA20E1F2350061A517 /* sha256.cpp in Sources */,
 				B259C81920E1E2980061A517 /* jsoncpp.cpp in Sources */,
@@ -191,9 +215,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				LIBRARY_SEARCH_PATHS = ./Lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "";
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -243,8 +269,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				LIBRARY_SEARCH_PATHS = ./Lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "";
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -253,10 +281,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/ABCDChain";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/ABCDChain/Lib",
+					"$(PROJECT_DIR)/ABCDChain",
 				);
+				OTHER_CFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -265,10 +296,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/ABCDChain";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/ABCDChain/Lib",
+					"$(PROJECT_DIR)/ABCDChain",
 				);
+				OTHER_CFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
