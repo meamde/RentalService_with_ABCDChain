@@ -13,101 +13,38 @@
 	{
 		"Header" : 
 		{
-			"BlockHash" : "005094bd54dd66241beb595895aabeb31b28442c6c7469c36fa4df357ee74b18",
+			"BlockHash" : "00346608ca5adf309fd1e9e87ab06837036f8be726abb476756a8c616965064c",
 			"BlockId" : 1,
 			"BlockLength" : 0,
-			"Nonce" : 3,
+			"Nonce" : 307,
 			"PreviousHash" : "00328ce57bbc14b33bd6695bc8eb32cdf2fb5f3a7d89ec14a42825e15d39df60"
 		},
 		"Transaction" : 
 		[
 			{
-				"TimeStamp" : 1530162828,
+				"TimeStamp" : 0,
 				"Type" : 0,
-				"UserAddress" : "dsadfwegah29i31090sdfsd89a0gs890a"
+				"UserAddress" : "D8F9D0A480DF7599F2F35DD8C83463332285D67DE2D0E8FDE8E979C810B4D07B"
 			}
 		]
 	},
 	{
 		"Header" : 
 		{
-			"BlockHash" : "00c80e381c6ab82f89982a455c179f769ea278f0ef795ee6c5329129ff827f84",
+			"BlockHash" : "00e3c98d0b958161ee1e6d058b087cb6ec115f603a25196b2dd268e3d4b30592",
 			"BlockId" : 2,
 			"BlockLength" : 0,
-			"Nonce" : 451,
-			"PreviousHash" : "005094bd54dd66241beb595895aabeb31b28442c6c7469c36fa4df357ee74b18"
+			"Nonce" : 61,
+			"PreviousHash" : "00346608ca5adf309fd1e9e87ab06837036f8be726abb476756a8c616965064c"
 		},
 		"Transaction" : 
 		[
 			{
 				"Amount" : 1000.0,
-				"SuperAddress" : "SUUPPPPPEEERRRRkey",
-				"TimeStamp" : 1530162828,
+				"SuperAddress" : "Superkey",
+				"TimeStamp" : 0,
 				"Type" : 1,
-				"UserAddress" : "dsadfwegah29i31090sdfsd89a0gs890a"
-			}
-		]
-	},
-	{
-		"Header" : 
-		{
-			"BlockHash" : "00cbe8109cc1fbf3486469e7d5174af19a913610b1e436610e1d9003d5a14b72",
-			"BlockId" : 3,
-			"BlockLength" : 0,
-			"Nonce" : 317,
-			"PreviousHash" : "00c80e381c6ab82f89982a455c179f769ea278f0ef795ee6c5329129ff827f84"
-		},
-		"Transaction" : 
-		[
-			{
-				"Amount" : 30.0,
-				"TimeStamp" : 1530162828,
-				"Type" : 2,
-				"UserAddress" : "dsadfwegah29i31090sdfsd89a0gs890a"
-			}
-		]
-	},
-	{
-		"Header" : 
-		{
-			"BlockHash" : "00532da0deb47f44a1f5684b2e1e1945dbde9e7491d3e4f64c6cb234355e5145",
-			"BlockId" : 4,
-			"BlockLength" : 0,
-			"Nonce" : 630,
-			"PreviousHash" : "00cbe8109cc1fbf3486469e7d5174af19a913610b1e436610e1d9003d5a14b72"
-		},
-		"Transaction" : 
-		[
-			{
-				"Amount" : 50.0,
-				"DueTime" : 1530422028,
-				"RentalDevice" : "Device1",
-				"RentalTime" : 1530162828,
-				"TimeStamp" : 1530162828,
-				"Type" : 3,
-				"UserAddress" : "dsadfwegah29i31090sdfsd89a0gs890a"
-			}
-		]
-	},
-	{
-		"Header" : 
-		{
-			"BlockHash" : "0009c5d1b2f0246c12315d0a751dd7a17f57b9b71456c02abd34adc1a9c25128",
-			"BlockId" : 5,
-			"BlockLength" : 0,
-			"Nonce" : 96,
-			"PreviousHash" : "00532da0deb47f44a1f5684b2e1e1945dbde9e7491d3e4f64c6cb234355e5145"
-		},
-		"Transaction" : 
-		[
-			{
-				"Amount" : 50.0,
-				"DueTime" : 1530422028,
-				"RentalDevice" : "Device1",
-				"ReturnTime" : 1530162828,
-				"TimeStamp" : 1530162828,
-				"Type" : 4,
-				"UserAddress" : "dsadfwegah29i31090sdfsd89a0gs890a"
+				"UserAddress" : "D8F9D0A480DF7599F2F35DD8C83463332285D67DE2D0E8FDE8E979C810B4D07B"
 			}
 		]
 	}

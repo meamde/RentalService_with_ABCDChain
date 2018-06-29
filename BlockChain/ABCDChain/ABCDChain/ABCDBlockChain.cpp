@@ -18,8 +18,8 @@
 #include "Transaction.hpp"
 #include "json/json.h"
 #include "asio.hpp"
-#include "secp256k1/secp256k1.h"
-#include "secp256k1/secp256k1_recovery.h"
+//#include "secp256k1/secp256k1.h"
+//#include "secp256k1/secp256k1_recovery.h"
 
 using asio::ip::tcp;
 
@@ -372,14 +372,12 @@ void BroadCastLastBlock()
             Json::Value body;
             
             header["Type"] = "BlockBroadCast";
-            body["Block"] = blockList.back()->GetJson();
-            
+            body["Block"] = blockList.back()->GetJsonValue();
             packet["Header"] = header;
             packet["Body"] = body;
             
             std::string packetStr = packet.toStyledString();
-            char* cstr = (char*)packetStr.c_str();
-            asio::write(socket , asio::buffer(cstr, packetStr.size()));
+            asio::write(socket , asio::buffer(packetStr.c_str(), packetStr.size()));
         }
         
         if(socket.is_open())
@@ -389,8 +387,8 @@ void BroadCastLastBlock()
 
 void AddTransaction(Transaction trans)
 {
-    ABCDBlock newBlock(blockList.back()->GetBlockId()+1, blockList.back()->GetBlockHash());
-    blockList.push_back(&newBlock);
+    ABCDBlock *newBlock = new ABCDBlock(blockList.back()->GetBlockId()+1, blockList.back()->GetBlockHash());
+    blockList.push_back(newBlock);
     blockList.back()->AddTransaction(trans);
     blockList.back()->Determine();
 
@@ -434,6 +432,19 @@ bool WriteNodeAddressFile()
     return true;
 }
 
+void BroadCastThisNode(asio::ip::tcp::socket *socket)
+{
+    std::string bufferStr = "";
+    Json::Value packet;
+    Json::Value header;
+    Json::Value body;
+    
+    header["Type"] = "NodeBroadCast";
+    packet["Header"] = header;
+    packet["Body"] = body;
+    std::string packetStr = packet.toStyledString();
+    asio::write(*socket, asio::buffer(packetStr.c_str(), packetStr.size()));
+}
 void LoadBlockChainFromOtherNode(asio::ip::tcp::socket *socket)
 {
     char buff[4096] = "";
@@ -446,8 +457,6 @@ void LoadBlockChainFromOtherNode(asio::ip::tcp::socket *socket)
     packet["Header"] = header;
     packet["Body"] = body;
     std::string packetStr = packet.toStyledString();
-    char* packetChar = (char*)packetStr.c_str();
-    
     asio::write(*socket, asio::buffer(packetStr.c_str(), packetStr.size()));
     asio::error_code ec;
     
@@ -544,10 +553,8 @@ private:
                                             else if(header["Type"] == "BlockBroadCast")
                                             {
                                                 Json::Value block = body["Block"];
-                                                ABCDBlock tBlock(block.toStyledString());
-                                                ABCDBlock *lastBlock = blockList.back();
-                                                blockList.pop_back();
-                                                blockList.push_back(&tBlock);
+                                                ABCDBlock *tBlock = new ABCDBlock(block.toStyledString());
+                                                blockList.push_back(tBlock);
                                                 if(BlockVerify())
                                                 {
                                                     WriteBlockToFile();
@@ -556,7 +563,7 @@ private:
                                                 else
                                                 {
                                                     blockList.pop_back();
-                                                    blockList.push_back(lastBlock);
+                                                    delete tBlock;
                                                 }
                                             }
                                             else if(header["Type"] == "FullBlockRequest")
@@ -576,6 +583,8 @@ private:
                                                 {
                                                     nodeAddressList[nodeAddressList.size()] = ip;
                                                     WriteNodeAddressFile();
+                                                    
+                                                    std::cout << ip["IP address"].asString() << " Broad Casted";
                                                 }
                                                 
                                                 packetHeader["Type"] = "NodeRespone";
@@ -601,6 +610,8 @@ private:
                                                 {
                                                     nodeAddressList[nodeAddressList.size()] = ip;
                                                     WriteNodeAddressFile();
+                                                    
+                                                    std::cout << ip["IP address"].asString() << " Broad Cast Responed";
                                                 }
                                             }
                                             else if(header["Type"] == "WalletRegist")
@@ -799,86 +810,7 @@ private:
 
 
 int main(int argc, const char * argv[]) {
-    std::string rStr = "5376178FFBC92673BE92120E66853E279F7718C9E9BFCD01080379F20857E5D9";
-    std::string sStr = "194CEC5899444ADAD418B7C4CF3BDE1122142F47F88AFED116A0FC3E0FC678FA";
-    std::string pubKey = "035C035F314238C0F5F71943ACACA7E35464188CF8599FE15FC680CAE1EFBD08CE";
-    std::string msg = "{\"Transaction\":{\"Type\":0,\"UserAddress\":\"F753763B78CE2E461DE960F44FA4D7B3311FD6270A43034C74FB6872756AAE46\"}}";
 
-    secp256k1_ecdsa_signature sig;
-    secp256k1_pubkey pkey;
-        
-    char* rC = HexStringToByteArray(rStr);
-    char* sC = HexStringToByteArray(sStr);
-    int index = 0;
-    for (int i = 0; i < rStr.size()/2; i++) {
-        sig.data[index++] = rC[i];
-    }
-    for(int i = 0; i < sStr.size()/2; i++){
-        sig.data[index++] = sC[i];
-    }
-    
-    
-    delete rC;
-    delete sC;
-    
-    char* pubC = HexStringToByteArray(pubKey);
-    for(int i = 0; i < pubKey.size(); i++)
-        pkey.data[i] = pubC[i];
-    
-    SHA256 sha256;
-    std::cout << sha256(pubC) << std::endl;
-    
-    delete pubC;
-    
-    
-    //for(int i = 0; i < pubKey.size(); i++)
-      //  pubC
-    
-    secp256k1_context *ctx = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
-    std::cout << secp256k1_ecdsa_verify(ctx, &sig, (unsigned char *)msg.c_str(), &pkey) << std::endl;
-	/*ABCDBlock GenesisBlock(0, "");
-    blockList.push_back(&GenesisBlock);
-    GenesisBlock.Determine();
-    
-	ABCDBlock Block1(blockList.back()->GetBlockId() + 1 , blockList.back()->GetBlockHash());
-    blockList.push_back(&Block1);
-    blockList.back()->AddTransaction(Transaction(WalletRegistration, "dsadfwegah29i31090sdfsd89a0gs890a", time(0)));
-	blockList.back()->Determine();
-	
-	std::cout << "BlockVerify : " << (BlockVerify() ? "True" : "False") << std::endl;
-
-	ABCDBlock Block2(blockList.back()->GetBlockId() + 1, blockList.back()->GetBlockHash());
-	blockList.push_back(&Block2);
-	blockList.back()->AddTransaction(Transaction(Issue, "SUUPPPPPEEERRRRkey","dsadfwegah29i31090sdfsd89a0gs890a", 1000, time(0)));
-	blockList.back()->Determine();
-
-	std::cout << "BlockVerify : " << (BlockVerify() ? "True" : "False") << std::endl;
-
-	ABCDBlock Block3(blockList.back()->GetBlockId() + 1, blockList.back()->GetBlockHash());
-	blockList.push_back(&Block3);
-	blockList.back()->AddTransaction(Transaction(Payment, "dsadfwegah29i31090sdfsd89a0gs890a", 30, time(0)));
-	blockList.back()->Determine();
-
-	std::cout << "BlockVerify : " << (BlockVerify() ? "True" : "False") << std::endl;
-
-	ABCDBlock Block4(blockList.back()->GetBlockId() + 1, blockList.back()->GetBlockHash());
-	blockList.push_back(&Block4);
-	blockList.back()->AddTransaction(Transaction(Rental, "dsadfwegah29i31090sdfsd89a0gs890a", "Device1", 50, time(0), time(0) + 60*60*24*3, time(0)));
-	blockList.back()->Determine();
-
-	std::cout << "BlockVerify : " << (BlockVerify() ? "True" : "False") << std::endl;
-
-	ABCDBlock Block5(blockList.back()->GetBlockId() + 1, blockList.back()->GetBlockHash());
-	blockList.push_back(&Block5);
-	blockList.back()->AddTransaction(Transaction(Return, "dsadfwegah29i31090sdfsd89a0gs890a", "Device1", 50, time(0) + 60 * 60 * 24 * 3, time(0), time(0)));
-	blockList.back()->Determine();
-
-	std::cout << "BlockVerify : " << (BlockVerify() ? "True" : "False") << std::endl;
-    
-	std::cout << "Amount : " << GetAmountOfAddress("dsadfwegah29i31090sdfsd89a0gs890a") << std::endl;
-
-    WriteBlockToFile();*/
-    
     bool hasLiveNode = false;
     
     
@@ -910,7 +842,7 @@ int main(int argc, const char * argv[]) {
                 socket.close();
         }
     }
-    else
+    //else
     {
         
         if(!ReadBlockFromFile())
@@ -925,9 +857,9 @@ int main(int argc, const char * argv[]) {
                 
                 if(input == 1)
                 {
-                    ABCDBlock GenesisBlock(0, "");
-                    blockList.push_back(&GenesisBlock);
-                    GenesisBlock.Determine();
+                    ABCDBlock *GenesisBlock = new ABCDBlock(0, "");
+                    blockList.push_back(GenesisBlock);
+                    GenesisBlock->Determine();
                     
                     WriteBlockToFile();
                     break;
@@ -962,6 +894,7 @@ int main(int argc, const char * argv[]) {
                         WriteNodeAddressFile();
                         
                         LoadBlockChainFromOtherNode(&socket);
+                        BroadCastThisNode(&socket);
                     }
                     
                     if(socket.is_open())
@@ -984,120 +917,6 @@ int main(int argc, const char * argv[]) {
     server s(serverIoService, 7777);
     
     std::cout << "ABCDChain : Start node listner" << std::endl;
-    
- /*   Json::Value root;
-    Json::Value header;
-    Json::Value body;
-    Json::Value trans;
-    
-    root.clear();
-    header.clear();
-    body.clear();
-    trans.clear();
-    
-    header["Type"] = "WalletRegist";
-    header["PublicKey"] = "Publickeysasdjfaldkfla";
-    header["Encrypt"] = "EncryptedJsonBodyadksjfljsa";
-    root["Header"] = header;
-    
-    trans["Type"] = 0;
-    trans["UserAddress"] = "dsadfwegah29i31090sdfsd89a0gs890a";
-    body["Transaction"] = trans;
-    root["Body"] = body;
-    
-    std::cout << root << std::endl << std::endl;
-    
-    root.clear();
-    header.clear();
-    body.clear();
-    trans.clear();
-    
-    header["Type"] = "CreaditIssue";
-    header["PublicKey"] = "Publickeysasdjfaldkfla";
-    header["Encrypt"] = "EncryptedJsonBodyadksjfljsa";
-    root["Header"] = header;
-    
-    trans["Type"] = 1;
-    trans["SuperAddress"] = "Supppperkey";
-    trans["UserAddress"] = "dsadfwegah29i31090sdfsd89a0gs890a";
-    trans["Amount"] = 1000.0;
-    body["Transaction"] = trans;
-    root["Body"] = body;
-    
-    std::cout << root << std::endl << std::endl;
-    
-    root.clear();
-    header.clear();
-    body.clear();
-    trans.clear();
-    
-    header["Type"] = "GetAddressAmount";
-    header["PublicKey"] = "Publickeysasdjfaldkfla";
-    header["Encrypt"] = "EncryptedJsonBodyadksjfljsa";
-    root["Header"] = header;
-    
-    body["UserAddress"] = "dsadfwegah29i31090sdfsd89a0gs890a";
-    root["Body"] = body;
-    
-    std::cout << root << std::endl << std::endl;
-    
-    root.clear();
-    header.clear();
-    body.clear();
-    trans.clear();
-    
-    header["Type"] = "RentalAvailable";
-    header["PublicKey"] = "Publickeysasdjfaldkfla";
-    header["Encrypt"] = "EncryptedJsonBodyadksjfljsa";
-    root["Header"] = header;
-    
-    body["DeviceId"] = "Device1";
-    root["Body"] = body;
-    
-    std::cout << root << std::endl << std::endl;
-    
-    root.clear();
-    header.clear();
-    body.clear();
-    trans.clear();
-    
-    header["Type"] = "RentalRequest";
-    header["PublicKey"] = "Publickeysasdjfaldkfla";
-    header["Encrypt"] = "EncryptedJsonBodyadksjfljsa";
-    root["Header"] = header;
-    
-    trans["Type"] = 3;
-    trans["UserAddress"] = "dsadfwegah29i31090sdfsd89a0gs890a";
-    trans["RentalDevice"] = "Device1";
-    trans["RentalTime"] = 1529991411;
-    trans["DueTime"] = 1530250611;
-    trans["Amount"] = 50.0;
-    body["Transaction"] = trans;
-    root["Body"] = body;
-    
-    std::cout << root << std::endl << std::endl;
-    
-    root.clear();
-    header.clear();
-    body.clear();
-    trans.clear();
-    
-    header["Type"] = "ReturnRequest";
-    header["PublicKey"] = "Publickeysasdjfaldkfla";
-    header["Encrypt"] = "EncryptedJsonBodyadksjfljsa";
-    root["Header"] = header;
-    
-    trans["Type"] = 4;
-    trans["UserAddress"] = "dsadfwegah29i31090sdfsd89a0gs890a";
-    trans["RentalDevice"] = "Device1";
-    trans["DueTime"] = 1529991411;
-    trans["ReturnTime"] = 1530250611;
-    trans["Amount"] = 50.0;
-    body["Transaction"] = trans;
-    root["Body"] = body;
-    
-    std::cout << root << std::endl << std::endl;*/
-    
     
     serverIoService.run();
     
