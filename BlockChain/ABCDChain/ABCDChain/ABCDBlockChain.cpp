@@ -620,40 +620,11 @@ private:
                                                 packetHeader["Type"] = "WalletRegistResponse";
                                                 if(TransactionVerify(trans))
                                                 {
-                                                    /*asio::io_service clientIoService;
-                                                    for(int i = 0; i < nodeAddressList.size(); i++)
-                                                    {
-                                                        asio::ip::tcp::endpoint endPoint(asio::ip::address::from_string
-                                                                                         (nodeAddressList[i]["IP address"].asString()),
-                                                                                         nodeAddressList[i]["Port"].asInt());
-                                                        asio::error_code connectError;
-                                                        asio::ip::tcp::socket socket(clientIoService);
-                                                        socket.connect(endPoint, connectError);
-                                                        
-                                                        if(!connectError)
-                                                        {
-                                                            packetHeader["Type"] = "TransactionVerifing";
-                                                            packetBody = body;
-                                                            
-                                                            packet["Header"] = packetHeader;
-                                                            packet["Body"] = packetBody;
-                                                            
-                                                            std::string packetStr = packet.toStyledString();
-                                                            asio::write(socket, asio::buffer(packetStr.c_str(), packetStr.size()));
-                                                            asio::read(socket, asio::buffer(data_, max_length));
-                                                            if(std::string(data_).find("True") >= 0)
-                                                                break;
-                                                        }
-                                                    }*/
                                                     AddTransaction(trans);
                                                     Transaction creditIssue(Issue, "Superkey", trans.GetAddress1(), 1000, 0);
                                                     AddTransaction(creditIssue);
                                                     
-                                                    
-                                                    packetBody["Response"] = 1;
-                                                    
-                                                   
-                                                }
+                                                    packetBody["Response"] = 1;                                                }
                                                 else
                                                     packetBody["Response"] = 0;
                                                 
